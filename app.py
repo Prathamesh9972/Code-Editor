@@ -34,6 +34,22 @@ def add_problem_route():
     return render_template('add_problem.html')
 
 
+@app.route('/code_playground')
+def code_playground():
+    return render_template('code_playground.html')
+
+
+@app.route('/execute_playground', methods=['POST'])
+def execute_playground():
+    code = request.json['code']
+    language = request.json['language']
+    input_data = request.json['input']
+
+    output = execute_code(code, language, input_data)
+
+    return jsonify({"output": output})
+
+
 @app.route('/execute', methods=['POST'])
 def execute():
     code = request.json['code']

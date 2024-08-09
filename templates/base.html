@@ -11,11 +11,12 @@
     <header>
         <div class="logo">LeetCode-like</div>
         <nav>
-            <a href="{{ url_for('home') }}" {% if request.path == url_for('home') %}class="active"{% endif %}>Home</a>
-            <a href="{{ url_for('problem_list') }}" {% if request.path == url_for('problem_list') %}class="active"{% endif %}>Problems</a>
-            <a href="{{ url_for('add_problem_route') }}" {% if request.path == url_for('add_problem_route') %}class="active"{% endif %}>Add Problem</a>
-            <button id="dark-mode-toggle">Toggle Dark Mode</button>
-        </nav>
+    <a href="{{ url_for('home') }}" {% if request.path == url_for('home') %}class="active"{% endif %}>Home</a>
+    <a href="{{ url_for('problem_list') }}" {% if request.path == url_for('problem_list') %}class="active"{% endif %}>Problems</a>
+    <a href="{{ url_for('add_problem_route') }}" {% if request.path == url_for('add_problem_route') %}class="active"{% endif %}>Add Problem</a>
+    <a href="{{ url_for('code_playground') }}" {% if request.path == url_for('code_playground') %}class="active"{% endif %}>Code Playground</a>
+    <button id="dark-mode-toggle">Toggle Dark Mode</button>
+</nav>
     </header>
     <main>
         {% block content %}{% endblock %}

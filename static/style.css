@@ -280,3 +280,52 @@ footer {
 #run-code:hover {
     background-color: var(--button-hover-bg);
 }
+
+.code-playground {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.code-editor, .input-output {
+    margin-bottom: 20px;
+}
+
+.code-editor textarea, .input-output textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
+.input-output {
+    display: flex;
+    gap: 20px;
+}
+
+.input, .output {
+    flex: 1;
+}
+
+#output {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 10px;
+    min-height: 100px;
+}
+
+#run-code {
+    background-color: var(--button-bg);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+#run-code:hover {
+    background-color: var(--button-hover-bg);
+}

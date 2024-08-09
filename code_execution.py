@@ -7,11 +7,31 @@ import os
 
 def execute_code(code, language, input_data):
     if language == 'python':
-        return execute_python(code, input_data)
+        try:
+            process = subprocess.Popen(['python', '-c', code],
+                                       stdin=subprocess.PIPE,
+                                       stdout=subprocess.PIPE,
+                                       stderr=subprocess.PIPE,
+                                       text=True)
+            stdout, stderr = process.communicate(input=input_data)
+            if stderr:
+                return f"Error: {stderr}"
+            return stdout
+        except Exception as e:
+            return f"Error: {str(e)}"
     elif language == 'javascript':
-        return execute_javascript(code, input_data)
-    elif language == 'cpp':
-        return execute_cpp(code, input_data)
+        try:
+            process = subprocess.Popen(['node', '-e', code],
+                                       stdin=subprocess.PIPE,
+                                       stdout=subprocess.PIPE,
+                                       stderr=subprocess.PIPE,
+                                       text=True)
+            stdout, stderr = process.communicate(input=input_data)
+            if stderr:
+                return f"Error: {stderr}"
+            return stdout
+        except Exception as e:
+            return f"Error: {str(e)}"
     else:
         return "Unsupported language"
 
