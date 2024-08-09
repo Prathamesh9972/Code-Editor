@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Code Playground{% endblock %}
+
+{% block content %}
+<div class="code-playground">
+    <h2>Code Playground</h2>
+    <div class="code-editor">
+        <label for="language">Language:</label>
+        <select id="language">
+            <option value="python">Python</option>
+            <option value="javascript">JavaScript</option>
+            <option value="cpp">Cpp</option>
+            <!-- Add more language options as needed -->
+        </select>
+        <textarea id="code" rows="10" placeholder="Enter your code here..."></textarea>
+    </div>
+    <div class="input-output">
+        <div class="input">
+            <h3>Input</h3>
+            <textarea id="input" rows="5" placeholder="Enter your input here..."></textarea>
+        </div>
+        <div class="output">
+            <h3>Output</h3>
+            <pre id="output"></pre>
+        </div>
+    </div>
+    <button id="run-code">Run Code</button>
+</div>
+
+<script>
+document.getElementById('run-code').addEventListener('click', function() {
+    const code = document.getElementById('code').value;
+    const language = document.getElementById('language').value;
+    const input = document.getElementById('input').value;
+
+    fetch('/execute_playground', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ code, language, input }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('output').textContent = data.output;
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+    });
+});
+</script>
+{% endblock %}

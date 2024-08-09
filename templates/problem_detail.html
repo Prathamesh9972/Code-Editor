@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}{{ problem.title }}{% endblock %}
+
+{% block content %}
+<div class="problem-container">
+    <div class="problem-description">
+        <h2>{{ problem.title }}</h2>
+        <p>{{ problem.description }}</p>
+    </div>
+    <div class="code-editor">
+        <h3>Code Editor</h3>
+        <select id="language-select">
+            <option value="python">Python</option>
+            <option value="javascript">JavaScript</option>
+            <option value="cpp">C++</option>
+        </select>
+        <textarea id="code-input" rows="15" cols="50" placeholder="Enter your code here..."></textarea>
+        <button id="run-code">Run Code</button>
+    </div>
+    <div class="output">
+        <h3>Results:</h3>
+        <div id="results"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('run-code').addEventListener('click', function() {
+    const code = document.getElementById('code-input').value;
+    const language = document.getElementById('language-select').value;
+
+    fetch('/execute', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            code: code,
+            language: language,
+            problem_id: {{ problem.id }}
+        }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        let resultsHtml = '<table><tr><th>Input</th><th>Expected Output</th><th>Actual Output</th><th>Result</th></tr>';
+        data.forEach(result => {
+            resultsHtml += `<tr>
+                <td>${result.input}</td>
+                <td>${result.expected_output}</td>
+                <td>${result.actual_output}</td>
+                <td>${result.is_correct ? '✅ Correct' : '❌ Incorrect'}</td>
+            </tr>`;
+        });
+        resultsHtml += '</table>';
+        document.getElementById('results').innerHTML = resultsHtml;
+    });
+});
+</script>
+{% endblock %}

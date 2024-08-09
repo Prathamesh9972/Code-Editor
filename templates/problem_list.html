@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}Problem List{% endblock %}
+
+{% block content %}
+<h1>Problem List</h1>
+<ul class="problem-list">
+    {% for problem in problems %}
+    <li><a href="{{ url_for('problem_detail', problem_id=problem.id) }}">{{ problem.title }}</a></li>
+    {% endfor %}
+</ul>
+{% endblock %}
