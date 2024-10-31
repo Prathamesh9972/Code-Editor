@@ -28,4 +28,4 @@ To run Compile-Space locally on your machine, follow these steps:
 1. **Clone the Repository**:
    Open your terminal and run the following command to clone the repository:
    ```bash
-   git clone https://github.com/Prathamesh9972/Compile-Space.git
+   git clone https://github.com/Prathamesh9972/Code-Editor.git
