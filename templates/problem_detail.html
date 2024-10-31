@@ -3,33 +3,287 @@
 {% block title %}{{ problem.title }}{% endblock %}
 
 {% block content %}
-<div class="problem-container">
+<style>
+    :root {
+        --bg-primary: #0a0c1b;
+        --bg-secondary: #141829;
+        --accent-primary: #6d28d9;
+        --accent-secondary: #7c3aed;
+        --text-primary: #e2e8f0;
+        --text-secondary: #94a3b8;
+        --gradient-start: #6d28d9;
+        --gradient-end: #4c1d95;
+        --editor-bg: #1e1e2e;
+        --editor-text: #f8fafc;
+        --success-color: #10b981;
+        --error-color: #ef4444;
+    }
+
+    /* Existing styles remain the same */
+    .problem-container-main {
+        max-width: 1400px;
+        margin: 2rem auto;
+        padding: 0 2rem;
+        display: grid;
+        gap: 2rem;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .problem-description {
+        background: linear-gradient(145deg, var(--bg-secondary), rgba(20, 24, 41, 0.8));
+        backdrop-filter: blur(10px);
+        border-radius: 24px;
+        padding: 2rem;
+        border: 1px solid rgba(124, 58, 237, 0.15);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+    }
+
+    .problem-description:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 48px rgba(124, 58, 237, 0.2);
+    }
+
+    .problem-description h2 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        background: linear-gradient(135deg, var(--accent-secondary), var(--accent-primary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        position: relative;
+    }
+
+    .problem-description h2::after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 0;
+        width: 100px;
+        height: 3px;
+        background: linear-gradient(90deg, var(--accent-primary), transparent);
+        border-radius: 2px;
+    }
+
+    .problem-description p {
+        color: var(--text-secondary);
+        line-height: 1.8;
+        font-size: 1.1rem;
+    }
+
+    .code-editor-main {
+        background: var(--editor-bg);
+        border-radius: 24px;
+        padding: 2rem;
+        border: 1px solid rgba(124, 58, 237, 0.15);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    }
+
+    .code-editor-main h3 {
+        color: var(--text-primary);
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .code-editor-main h3::before {
+        content: '';
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        background: var(--accent-primary);
+        border-radius: 50%;
+        box-shadow: 0 0 12px var(--accent-primary);
+    }
+
+    /* CodeMirror Custom Styles */
+    .CodeMirror {
+        height: 400px !important;
+        border-radius: 12px;
+        padding: 1rem;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 14px;
+        line-height: 1.6;
+        background: rgba(0, 0, 0, 0.2) !important;
+        border: 1px solid rgba(124, 58, 237, 0.2);
+    }
+
+    .CodeMirror-focused {
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.1);
+    }
+
+    .CodeMirror-gutters {
+        background: rgba(0, 0, 0, 0.3) !important;
+        border-right: 1px solid rgba(124, 58, 237, 0.2);
+    }
+
+    .CodeMirror-linenumber {
+        color: var(--text-secondary) !important;
+    }
+
+    /* Rest of the existing styles remain the same */
+    #language-select {
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+        border: 1px solid rgba(124, 58, 237, 0.3);
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-size: 1rem;
+        width: 200px;
+        margin-bottom: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    #language-select:hover {
+        border-color: var(--accent-primary);
+    }
+
+    #run-code {
+        background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+        color: white;
+        border: none;
+        /* padding: 1rem; */
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        border-radius: 12px;
+        font-weight: 500;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+
+    #run-code::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 200%;
+        height: 100%;
+        background: linear-gradient(115deg, 
+            transparent, 
+            transparent, 
+            rgba(255, 255, 255, 0.2), 
+            transparent, 
+            transparent);
+        transform: translateX(-100%);
+        transition: transform 0.6s ease;
+    }
+
+    #run-code:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(124, 58, 237, 0.4);
+    }
+
+    #run-code:hover::before {
+        transform: translateX(50%);
+    }
+
+    .output-main {
+        background: var(--bg-secondary);
+        border-radius: 24px;
+        padding: 2rem;
+        border: 1px solid rgba(124, 58, 237, 0.15);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        grid-column: span 2;
+    }
+
+    /* Existing styles for results table and responsive design remain the same */
+    /* ... */
+</style>
+
+<!-- Add CodeMirror CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css">
+
+<div class="problem-container-main">
     <div class="problem-description">
         <h2>{{ problem.title }}</h2>
         <p>{{ problem.description }}</p>
     </div>
-    <div class="code-editor">
+
+    <div class="code-editor-main">
         <h3>Code Editor</h3>
         <select id="language-select">
             <option value="python">Python</option>
             <option value="javascript">JavaScript</option>
             <option value="cpp">C++</option>
         </select>
-        <textarea id="code-input" rows="15" cols="50" placeholder="Enter your code here..."></textarea>
+        <textarea id="code-input" placeholder="Enter your code here..."></textarea>
         <button id="run-code">Run Code</button>
     </div>
-    <div class="output">
-        <h3>Results:</h3>
+
+    <div class="output-main">
+        <h3>Results</h3>
         <div id="results"></div>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
+<!-- Add CodeMirror JS and addons -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/python/python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/clike/clike.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/closebrackets.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/matchbrackets.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/comment/comment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/selection/active-line.min.js"></script>
+
 <script>
+// Initialize CodeMirror
+let editor = CodeMirror.fromTextArea(document.getElementById('code-input'), {
+    mode: 'python',
+    theme: 'monokai',
+    lineNumbers: true,
+    autoCloseBrackets: true,
+    matchBrackets: true,
+    styleActiveLine: true,
+    indentUnit: 4,
+    tabSize: 4,
+    indentWithTabs: false,
+    lineWrapping: true,
+    extraKeys: {
+        "Ctrl-/": "toggleComment",
+        "Cmd-/": "toggleComment",
+        "Tab": function(cm) {
+            if (cm.somethingSelected()) {
+                cm.indentSelection("add");
+            } else {
+                cm.replaceSelection("    ", "end");
+            }
+        }
+    }
+});
+
+// Update editor mode when language changes
+document.getElementById('language-select').addEventListener('change', function() {
+    const language = this.value;
+    const modeMap = {
+        'python': 'python',
+        'javascript': 'javascript',
+        'cpp': 'text/x-c++src'
+    };
+    editor.setOption('mode', modeMap[language]);
+});
+
+// Run code button click handler
 document.getElementById('run-code').addEventListener('click', function() {
-    const code = document.getElementById('code-input').value;
+    const button = this;
+    const originalText = button.textContent;
+    const code = editor.getValue();
     const language = document.getElementById('language-select').value;
+
+    // Add loading state
+    button.disabled = true;
+    button.innerHTML = 'Running... <span class="loading"></span>';
 
     fetch('/execute', {
         method: 'POST',
@@ -44,17 +298,28 @@ document.getElementById('run-code').addEventListener('click', function() {
     })
     .then(response => response.json())
     .then(data => {
-        let resultsHtml = '<table><tr><th>Input</th><th>Expected Output</th><th>Actual Output</th><th>Result</th></tr>';
-        data.forEach(result => {
+        let resultsHtml = '<table><tr><th>Test Case</th><th>Input</th><th>Expected Output</th><th>Your Output</th><th>Result</th></tr>';
+        data.forEach((result, index) => {
             resultsHtml += `<tr>
+                <td>Test ${index + 1}</td>
                 <td>${result.input}</td>
                 <td>${result.expected_output}</td>
                 <td>${result.actual_output}</td>
-                <td>${result.is_correct ? '✅ Correct' : '❌ Incorrect'}</td>
+                <td class="${result.is_correct ? 'result-correct' : 'result-incorrect'}">
+                    ${result.is_correct ? '✅ Correct' : '❌ Incorrect'}
+                </td>
             </tr>`;
         });
         resultsHtml += '</table>';
         document.getElementById('results').innerHTML = resultsHtml;
+    })
+    .catch(error => {
+        document.getElementById('results').innerHTML = `<div class="error">Error: ${error.message}</div>`;
+    })
+    .finally(() => {
+        // Restore button state
+        button.disabled = false;
+        button.textContent = originalText;
     });
 });
 </script>
