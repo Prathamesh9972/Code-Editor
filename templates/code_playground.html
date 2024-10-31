@@ -3,49 +3,358 @@
 {% block title %}Code Playground{% endblock %}
 
 {% block content %}
-<div class="code-playground">
-    <h2>Code Playground</h2>
-    <div class="code-editor">
-        <label for="language">Language:</label>
-        <select id="language">
-            <option value="python">Python</option>
-            <option value="javascript">JavaScript</option>
-            <!-- Add more language options as needed -->
-        </select>
-        <textarea id="code" rows="10" placeholder="Enter your code here..."></textarea>
-    </div>
-    <div class="input-output">
-        <div class="input">
-            <h3>Input</h3>
-            <textarea id="input" rows="5" placeholder="Enter your input here..."></textarea>
+<style>
+    /* Preserve existing styles */
+    :root {
+        --editor-bg: #1e1e2e;
+        --editor-border: #2d2d3d;
+        --editor-text: #e4e4e7;
+        --editor-line-number: #636380;
+        --editor-cursor: #a6accd;
+        --editor-selection: rgba(128, 203, 196, 0.2);
+        --editor-active-line: #313244;
+        --button-primary: #7c3aed;
+        --button-hover: #8b5cf6;
+        --output-success: #4ade80;
+        --output-error: #f87171;
+    }
+
+    /* All existing styles remain the same */
+    .code-playground-container {
+        padding: 2rem;
+        background: #13131f;
+        min-height: calc(100vh - 140px);
+        color: var(--editor-text);
+        font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    }
+
+    .heading-play {
+        font-size: 2rem;
+        margin-bottom: 2rem;
+        color: var(--editor-text);
+        position: relative;
+        display: inline-block;
+    }
+
+    .heading-play::after {
+        content: '';
+        position: absolute;
+        bottom: -5px;
+        left: 0;
+        width: 60%;
+        height: 3px;
+        background: var(--button-primary);
+        border-radius: 2px;
+    }
+
+    .code-playground {
+        display: grid;
+        grid-template-columns: 1.5fr 1fr;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .code-editor {
+        background: var(--editor-bg);
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid var(--editor-border);
+    }
+
+    .editor-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        background: rgba(0, 0, 0, 0.2);
+        border-bottom: 1px solid var(--editor-border);
+    }
+
+    #language {
+        background: var(--editor-bg);
+        color: var(--editor-text);
+        border: 1px solid var(--editor-border);
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        cursor: pointer;
+    }
+
+    /* CodeMirror specific styles */
+    .CodeMirror {
+        height: 700px !important;
+        font-family: 'Fira Code', monospace;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        background: var(--editor-bg) !important;
+    }
+
+    .CodeMirror-gutters {
+        background: var(--editor-bg) !important;
+        border-right: 1px solid var(--editor-border) !important;
+    }
+
+    .CodeMirror-linenumber {
+        color: var(--editor-line-number) !important;
+    }
+
+    .CodeMirror-cursor {
+        border-left: 2px solid var(--editor-cursor) !important;
+    }
+
+    .CodeMirror-selected {
+        background: var(--editor-selection) !important;
+    }
+
+    .CodeMirror-line {
+        color: var(--editor-text) !important;
+    }
+
+    .CodeMirror-activeline-background {
+        background: var(--editor-active-line) !important;
+    }
+
+    /* Preserve remaining styles */
+    .input-output {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .input, .output {
+        background: var(--editor-bg);
+        border-radius: 8px;
+        border: 1px solid var(--editor-border);
+        overflow: hidden;
+    }
+
+    .io-header {
+        padding: 0.75rem 1rem;
+        background: rgba(0, 0, 0, 0.2);
+        border-bottom: 1px solid var(--editor-border);
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    #input {
+        width: 100%;
+        min-height: 150px;
+        background: var(--editor-bg);
+        color: var(--editor-text);
+        border: none;
+        padding: 1rem;
+        font-family: 'Fira Code', monospace;
+        font-size: 0.9rem;
+        resize: vertical;
+    }
+
+    #output {
+    padding: 1rem;
+    min-height: 250px;
+    max-height: 250px; 
+    margin: 0;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.9rem;
+    white-space: pre-wrap;
+    overflow-y: auto;  /* Add this line */
+}
+
+    #run-code {
+        background: var(--button-primary);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        padding: 0.75rem 1.5rem;
+    }
+
+    #run-code:hover {
+        background: var(--button-hover);
+        transform: translateY(-2px);
+    }
+
+    #run-code:active {
+        transform: translateY(0);
+    }
+
+    #run-code.loading {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    #run-code.loading::after {
+        content: '';
+        width: 20px;
+        height: 20px;
+        border: 2px solid #ffffff;
+        border-radius: 50%;
+        border-top-color: transparent;
+        animation: spin 0.8s linear infinite;
+        margin-left: 0.5rem;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .success {
+        color: var(--output-success);
+    }
+
+    .error {
+        color: var(--output-error);
+    }
+
+    .loading-bar {
+        height: 3px;
+        width: 100%;
+        background: linear-gradient(90deg, var(--button-primary), var(--button-hover));
+        position: absolute;
+        top: 0;
+        left: 0;
+        transform: scaleX(0);
+        transform-origin: left;
+        display: none;
+    }
+
+    .loading-bar.active {
+        display: block;
+        animation: loading 1.5s infinite ease-in-out;
+    }
+
+    @keyframes loading {
+        0% { transform: scaleX(0); }
+        50% { transform: scaleX(0.7); }
+        100% { transform: scaleX(0); transform-origin: right; }
+    }
+</style>
+
+<!-- Add CodeMirror CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/dracula.min.css">
+
+<div class="code-playground-container">
+    <h2 class="heading-play">Code Playground</h2>
+    <div class="code-playground">
+        <div class="code-editor">
+            <div class="editor-header">
+                <select id="language">
+                    <option value="python">Python</option>
+                    <option value="javascript">JavaScript</option>
+                    
+                </select>
+            </div>
+            <div class="loading-bar"></div>
+            <textarea id="code" spellcheck="false" placeholder="Enter your code here..."></textarea>
         </div>
-        <div class="output">
-            <h3>Output</h3>
-            <pre id="output"></pre>
+        
+        <div class="input-output">
+            <div class="input">
+                <div class="io-header">Input</div>
+                <textarea id="input" spellcheck="false" placeholder="Enter your input here..."></textarea>
+            </div>
+            <div class="output">
+                <div class="io-header">Output</div>
+                <pre id="output"></pre>
+            </div>
         </div>
     </div>
-    <button id="run-code">Run Code</button>
+    
+    <button id="run-code">
+        <span>Run Code</span>
+    </button>
 </div>
 
-<script>
-document.getElementById('run-code').addEventListener('click', function() {
-    const code = document.getElementById('code').value;
-    const language = document.getElementById('language').value;
-    const input = document.getElementById('input').value;
+<!-- Add CodeMirror JS and required modes -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/python/python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/clike/clike.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/matchbrackets.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/closebrackets.min.js"></script>
 
-    fetch('/execute_playground', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ code, language, input }),
-    })
-    .then(response => response.json())
-    .then(data => {
-        document.getElementById('output').textContent = data.output;
-    })
-    .catch((error) => {
-        console.error('Error:', error);
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const runButton = document.getElementById('run-code');
+    const loadingBar = document.querySelector('.loading-bar');
+    
+    // Initialize CodeMirror
+    const editor = CodeMirror.fromTextArea(document.getElementById('code'), {
+        mode: 'python',
+        theme: 'dracula',
+        lineNumbers: true,
+        autoCloseBrackets: true,
+        matchBrackets: true,
+        indentUnit: 4,
+        tabSize: 4,
+        indentWithTabs: false,
+        lineWrapping: true,
+        autofocus: true,
+        extraKeys: {
+            "Tab": function(cm) {
+                if (cm.somethingSelected()) {
+                    cm.indentSelection("add");
+                } else {
+                    cm.replaceSelection("    ", "end");
+                }
+            }
+        }
+    });
+
+    // Language mode mapping
+    const modeMap = {
+        'python': 'python',
+        'javascript': 'javascript',
+        'java': 'text/x-java',
+        'cpp': 'text/x-c++src'
+    };
+
+    // Update editor mode when language changes
+    document.getElementById('language').addEventListener('change', function(e) {
+        editor.setOption('mode', modeMap[e.target.value]);
+    });
+
+    runButton.addEventListener('click', async () => {
+        const language = document.getElementById('language').value;
+        const code = editor.getValue();
+        const input = document.getElementById('input').value;
+
+        runButton.classList.add('loading');
+        loadingBar.classList.add('active');
+
+        try {
+            const response = await fetch('/execute_playground', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ language, code, input })
+            });
+
+            const result = await response.json();
+            const output = document.getElementById('output');
+
+            if (response.ok) {
+                output.textContent = result.output || 'No output';
+                output.className = 'success';
+            } else {
+                output.textContent = result.error || 'Error executing code';
+                output.className = 'error';
+            }
+        } catch (error) {
+            document.getElementById('output').textContent = 'Error: ' + error.message;
+            document.getElementById('output').className = 'error';
+        } finally {
+            runButton.classList.remove('loading');
+            loadingBar.classList.remove('active');
+        }
     });
 });
 </script>
