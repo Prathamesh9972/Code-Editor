@@ -5,32 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}LeetCode-like{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap" rel="stylesheet">
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <header>
-        <div class="logo">LeetCode-like</div>
+    <header style="position: fixed; width: 96%;">
+        <div class="logo">CompileSpace</div>
         <nav>
-    <a href="{{ url_for('home') }}" {% if request.path == url_for('home') %}class="active"{% endif %}>Home</a>
-    <a href="{{ url_for('problem_list') }}" {% if request.path == url_for('problem_list') %}class="active"{% endif %}>Problems</a>
-    <a href="{{ url_for('add_problem_route') }}" {% if request.path == url_for('add_problem_route') %}class="active"{% endif %}>Add Problem</a>
-    <a href="{{ url_for('code_playground') }}" {% if request.path == url_for('code_playground') %}class="active"{% endif %}>Code Playground</a>
-    <button id="dark-mode-toggle">Toggle Dark Mode</button>
-</nav>
+            <a href="{{ url_for('home') }}" {% if request.path == url_for('home') %}class="active"{% endif %}>Home</a>
+            <a href="{{ url_for('problem_list') }}" {% if request.path == url_for('problem_list') %}class="active"{% endif %}>Problems</a>
+            <a href="{{ url_for('add_problem_route') }}" {% if request.path == url_for('add_problem_route') %}class="active"{% endif %}>Add Problem</a>
+            <!-- <a href="{{ url_for('contests') }}" {% if request.path == url_for('contests') %}class="active"{% endif %}>Contests</a> -->
+            <a href="{{ url_for('code_playground') }}" {% if request.path == url_for('code_playground') %}class="active"{% endif %}>Code Playground</a>
+        </nav>
     </header>
-    <main>
+    <main style="margin-top: 5rem;">
         {% block content %}{% endblock %}
     </main>
     <footer>
-        <p>&copy; 2024 LeetCode-like. All rights reserved.</p>
+        <p>&copy; 2024 CompileSpace. All rights reserved.</p>
     </footer>
 
     <script>
-        // Dark mode toggle functionality
         const darkModeToggle = document.getElementById('dark-mode-toggle');
         const body = document.body;
 
-        // Check for saved dark mode preference
         if (localStorage.getItem('darkMode') === 'enabled') {
             body.classList.add('dark-mode');
         }
@@ -38,7 +37,6 @@
         darkModeToggle.addEventListener('click', () => {
             body.classList.toggle('dark-mode');
 
-            // Save preference to localStorage
             if (body.classList.contains('dark-mode')) {
                 localStorage.setItem('darkMode', 'enabled');
             } else {
