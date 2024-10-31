@@ -3,10 +3,287 @@
 {% block title %}Problem List{% endblock %}
 
 {% block content %}
-<h1>Problem List</h1>
-<ul class="problem-list">
-    {% for problem in problems %}
-    <li><a href="{{ url_for('problem_detail', problem_id=problem.id) }}">{{ problem.title }}</a></li>
-    {% endfor %}
-</ul>
+<style>
+    :root {
+        --bg-primary: #0a0c1b;
+        --bg-secondary: #141829;
+        --accent-primary: #6d28d9;
+        --accent-secondary: #7c3aed;
+        --text-primary: #e2e8f0;
+        --text-secondary: #94a3b8;
+        --gradient-start: #6d28d9;
+        --gradient-end: #4c1d95;
+        --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        --card-hover-shadow: 0 12px 48px rgba(124, 58, 237, 0.3);
+    }
+
+    body {
+        background: radial-gradient(circle at top right, #141829, #0a0c1b);
+        color: var(--text-primary);
+        min-height: 100vh;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        line-height: 1.6;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    h1 {
+        text-align: center;
+        font-size: 3.5rem;
+        font-weight: 900;
+        margin: 3rem 0;
+        background: linear-gradient(135deg, var(--accent-secondary), var(--accent-primary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: titleGlow 2s ease-in-out infinite;
+        position: relative;
+        letter-spacing: -0.02em;
+    }
+
+    h1::after {
+        content: '';
+        position: absolute;
+        bottom: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 150px;
+        height: 4px;
+        background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
+        border-radius: 4px;
+        filter: blur(1px);
+    }
+
+    .problem-list {
+        max-width: 1000px;
+        margin: 4rem auto;
+        padding: 0 1.5rem;
+        list-style: none;
+        display: grid;
+        gap: 2rem;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+
+    .problem-list li {
+        transform-style: preserve-3d;
+        perspective: 1000px;
+    }
+
+    .add-problem-main {
+        background: linear-gradient(145deg, var(--bg-secondary), rgba(20, 24, 41, 0.8));
+        backdrop-filter: blur(10px);
+        border-radius: 24px;
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(124, 58, 237, 0.15);
+        box-shadow: var(--card-shadow);
+        height: 100%;
+    }
+
+    .add-problem-main::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: -1;
+        border-radius: inherit;
+    }
+
+    .add-problem-main:hover {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: var(--card-hover-shadow);
+        border-color: rgba(124, 58, 237, 0.3);
+    }
+
+    .add-problem-main:hover::before {
+        opacity: 0.1;
+    }
+
+    .problem-title {
+        flex: 1;
+    }
+
+    .problem-title a {
+        color: var(--text-primary);
+        text-decoration: none;
+        font-size: 1.25rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        position: relative;
+        display: inline-block;
+        padding-bottom: 0.5rem;
+    }
+
+    .problem-title a::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: linear-gradient(90deg, var(--accent-secondary), transparent);
+        transition: width 0.3s ease;
+    }
+
+    .problem-title a:hover {
+        color: var(--accent-secondary);
+    }
+
+    .problem-title a:hover::after {
+        width: 100%;
+    }
+
+    .solve-button {
+        background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+        color: white;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        width: 100%;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .solve-button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 200%;
+        height: 100%;
+        background: linear-gradient(115deg, 
+            transparent, 
+            transparent, 
+            rgba(255, 255, 255, 0.2), 
+            transparent, 
+            transparent);
+        transform: translateX(-100%);
+        transition: transform 0.6s ease;
+    }
+
+    .solve-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(124, 58, 237, 0.4);
+    }
+
+    .solve-button:hover::before {
+        transform: translateX(50%);
+    }
+
+    @keyframes titleGlow {
+        0%, 100% {
+            text-shadow: 0 0 30px rgba(124, 58, 237, 0.3);
+            transform: scale(1);
+        }
+        50% {
+            text-shadow: 0 0 50px rgba(124, 58, 237, 0.5);
+            transform: scale(1.02);
+        }
+    }
+
+    /* Difficulty indicators */
+    .difficulty-indicator {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 4px;
+        background: var(--difficulty-color, var(--accent-primary));
+        opacity: 0.8;
+        border-radius: 4px 4px 0 0;
+    }
+
+    /* Card stats */
+    .problem-stats {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+        margin-top: auto;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(124, 58, 237, 0.1);
+    }
+
+    .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        h1 {
+            font-size: 2.5rem;
+        }
+
+        .problem-list {
+            grid-template-columns: 1fr;
+            padding: 0 1rem;
+        }
+
+        .add-problem-main {
+            padding: 1.5rem;
+        }
+    }
+
+    /* Performance Optimization */
+    @media (prefers-reduced-motion: reduce) {
+        * {
+            animation: none !important;
+            transition: none !important;
+        }
+    }
+</style>
+
+<div class="container">
+    <h1>Problem List</h1>
+    <ul class="problem-list">
+        {% for problem in problems %}
+        <li>
+            <div class="add-problem-main">
+                <div class="difficulty-indicator"></div>
+                <div class="problem-title">
+                    <a href="{{ url_for('problem_detail', problem_id=problem.id) }}">{{ problem.title }}</a>
+                </div>
+                <div class="problem-stats">
+                    <div class="stat-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                        </svg>
+                        <span>Medium</span>
+                    </div>
+                    <div class="stat-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+                            <path d="M12 6v6l4 2"/>
+                        </svg>
+                        <span>15 min</span>
+                    </div>
+                </div>
+                <div class="solve-button-container">
+                    <a href="{{ url_for('problem_detail', problem_id=problem.id) }}">
+                        <button type="submit" class="solve-button">Solve Challenge</button>
+                    </a>
+                </div>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
 {% endblock %}
