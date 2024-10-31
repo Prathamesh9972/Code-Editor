@@ -1,26 +1,732 @@
 {% extends "base.html" %}
 
-{% block title %}LeetCode-like - Home{% endblock %}
+{% block title %}CodeAdda - Code Editor{% endblock %}
 
 {% block content %}
-<h1>Welcome to LeetCode-like</h1>
-<p>Practice coding problems, improve your skills, and prepare for technical interviews!</p>
-<div class="feature-grid">
-    <div class="feature-item">
-        <h2>Diverse Problem Set</h2>
-        <p>Tackle a wide range of coding challenges across different difficulty levels.</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeAdda - Next-Gen Code Editor</title>
+    <style>
+        :root {
+            --bg-primary: #0a0b1e;
+            --bg-secondary: #141629;
+            --bg-tertiary: #1c1f3b;
+            --primary-color: #7000ff;
+            --primary-glow: rgba(112, 0, 255, 0.5);
+            --accent-color: #00ffd9;
+            --accent-glow: rgba(0, 255, 217, 0.5);
+            --neon-pink: #ff2a6d;
+            --neon-blue: #05d9e8;
+            --text-primary: #ffffff;
+            --text-secondary: #b8b8b8;
+        }
+
+        /* * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        } */
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            /* overflow-x: hidden; */
+        }
+
+        /* Base styles for the header section */
+#main-header {
+    background: var(--bg-primary);
+    padding: 1rem 2rem;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    border-bottom: 1px solid rgba(110, 0, 255, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.header-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.logo:hover {
+    color: var(--primary-color);
+}
+
+.logo-icon {
+    width: 32px;
+    height: 32px;
+    fill: var(--primary-color);
+}
+
+/* Navigation styles */
+.nav-menu {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+    list-style: none;
+}
+
+.nav-item {
+    position: relative;
+}
+
+.nav-link {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+    color: var(--primary-color);
+}
+
+.nav-link.active {
+    color: var(--primary-color);
+}
+
+.nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 1rem;
+    right: 1rem;
+    height: 2px;
+    background: var(--primary-color);
+    border-radius: 2px;
+}
+
+/* Action buttons */
+.header-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.header-btn {
+    padding: 0.5rem 1.5rem;
+    border-radius: 4px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.login-btn {
+    background: transparent;
+    color: var(--text-primary);
+    border: 1px solid var(--primary-color);
+}
+
+.login-btn:hover {
+    background: rgba(110, 0, 255, 0.1);
+    color: var(--primary-color);
+}
+
+.signup-btn {
+    background: var(--primary-color);
+    color: white;
+    box-shadow: 0 0 20px var(--primary-glow);
+}
+
+.signup-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 30px var(--primary-glow);
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .nav-menu {
+        display: none;
+    }
+
+    .header-actions {
+        gap: 0.5rem;
+    }
+
+    .header-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+}
+
+        .main-container {
+            position: relative;
+            min-height: 100vh;
+        }
+
+        /* Animated Background */
+        .grid-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(112, 0, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(112, 0, 255, 0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+            animation: gridMove 20s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(40px); }
+        }
+
+        /* Hero Section */
+        .hero-section {
+            padding: 120px 5% 80px;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero-title {
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 900;
+            margin-bottom: 1rem;
+            line-height: 1.1;
+            position: relative;
+            animation: titleFloat 6s ease-in-out infinite;
+        }
+
+        .hero-title::before {
+            content: attr(data-text);
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            background: linear-gradient(120deg, var(--neon-pink), var(--neon-blue));
+            -webkit-background-clip: text;
+            color: transparent;
+            animation: glitchText 3s infinite;
+        }
+
+        @keyframes titleFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes glitchText {
+            0%, 100% { clip-path: inset(0 0 0 0); }
+            20% { clip-path: inset(20% 0 0 0); }
+            40% { clip-path: inset(0 20% 0 0); }
+            60% { clip-path: inset(0 0 20% 0); }
+            80% { clip-path: inset(0 0 0 20%); }
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            margin-bottom: 3rem;
+            opacity: 0;
+            animation: fadeIn 1s ease-out forwards 0.5s;
+        }
+
+        /* Buttons */
+        .cta-container {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            margin-top: 3rem;
+        }
+
+        .cyber-button {
+            padding: 1rem 3rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .primary-button {
+            background: var(--primary-color);
+            color: white;
+            box-shadow: 0 0 20px var(--primary-glow);
+        }
+
+        .secondary-button {
+            background: transparent;
+            border: 2px solid var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        .cyber-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                120deg,
+                transparent,
+                rgba(255, 255, 255, 0.3),
+                transparent
+            );
+            transition: 0.5s;
+        }
+
+        .cyber-button:hover::before {
+            left: 100%;
+        }
+
+        /* Editor Preview */
+        .editor-preview {
+            margin: 80px auto;
+            max-width: 1200px;
+            padding: 0 20px;
+        }
+
+        .editor-container {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            box-shadow: 0 0 40px rgba(112, 0, 255, 0.2);
+            overflow: hidden;
+        }
+
+        .editor-header {
+            padding: 1rem;
+            background: var(--bg-tertiary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .tab-group {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .tab-button {
+            padding: 0.5rem 1.5rem;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .tab-button.active {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .editor-content {
+            padding: 2rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: var(--text-primary);
+            background: var(--bg-secondary);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 80px 5%;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            transition: transform 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            opacity: 0;
+            transition: 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .feature-card:hover::before {
+            opacity: 0.1;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .workflow-section {
+            padding: 100px 5%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .workflow-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: var(--text-primary);
+        }
+
+        .workflow-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .workflow-step {
+            position: relative;
+            padding: 2rem;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            transition: transform 0.3s ease;
+        }
+
+        .workflow-step:hover {
+            transform: translateY(-5px);
+        }
+
+        .step-number {
+            position: absolute;
+            top: -20px;
+            left: 20px;
+            width: 40px;
+            height: 40px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 0 15px var(--primary-glow);
+        }
+
+        /* Statistics Section */
+        .stats-section {
+            padding: 80px 5%;
+            background: var(--bg-secondary);
+            position: relative;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 3rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .stat-card {
+            padding: 2rem;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        /* Testimonials Section */
+        .testimonials {
+            padding: 100px 5%;
+            position: relative;
+        }
+
+        .testimonials-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .testimonial-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .testimonial-card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .testimonial-content {
+            margin-bottom: 1.5rem;
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .author-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--primary-color);
+        }
+
+        /* Call to Action Section */
+        .cta-section {
+            padding: 100px 5%;
+            text-align: center;
+            background: linear-gradient(45deg, var(--bg-secondary), var(--bg-tertiary));
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .cta-title {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(120deg, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 4rem auto;
+        }
+
+        .pricing-card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: left;
+            border: 1px solid rgba(112, 0, 255, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary-color);
+        }
+
+        .price-tag {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin: 1rem 0;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 2rem 0;
+        }
+
+        .feature-list li {
+            margin: 0.5rem 0;
+            color: var(--text-secondary);
+        }
+
+        .feature-list li::before {
+            content: "→";
+            color: var(--primary-color);
+            margin-right: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="grid-background"></div>
+        
+        <section class="hero-section">
+            <h1 class="hero-title" data-text="Code Beyond Limits">Code Beyond Limits</h1>
+            <p class="subtitle">Experience the future of coding with AI-powered intelligence</p>
+            <div class="cta-container">
+                <a href="{{ url_for('code_playground') }}" class="cyber-button primary-button">Launch Editor</a>
+                <button class="cyber-button secondary-button">Learn More</button>
+            </div>
+        </section>
+
+        <section class="features">
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>Quantum Editor</h3>
+                    <p>Advanced code intelligence with predictive suggestions</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Neural Testing</h3>
+                    <p>AI-powered test generation and validation</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Smart Analytics</h3>
+                    <p>Real-time performance insights and optimization</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="editor-preview">
+            <div class="editor-container">
+                <div class="editor-header">
+                    <div class="tab-group">
+                        <button class="tab-button active">main.py</button>
+                        <button class="tab-button">test.py</button>
+                        <button class="tab-button">output</button>
+                    </div>
+                </div>
+                <div class="editor-content">
+                    <pre><code>def quantum_analyze(data: List[int]) -> Dict[str, Any]:
+    """
+    Performs quantum-inspired analysis on input data
+    """
+    results = {
+        'patterns': detect_patterns(data),
+        'anomalies': find_anomalies(data),
+        'predictions': generate_predictions(data)
+    }
+    
+    return optimize_results(results)
+
+system = QuantumSystem(precision=0.99)
+results = quantum_analyze([1, 2, 3, 5, 8, 13])</code></pre>
+                </div>
+            </div>
+        </section>
+        <section class="workflow-section">
+            <h2 class="workflow-title">How It Works</h2>
+            <div class="workflow-grid">
+                <div class="workflow-step">
+                    <div class="step-number">1</div>
+                    <h3>Connect</h3>
+                    <p>Link your repository and let our AI analyze your codebase</p>
+                </div>
+                <div class="workflow-step">
+                    <div class="step-number">2</div>
+                    <h3>Code</h3>
+                    <p>Write code with AI-powered suggestions and real-time optimization</p>
+                </div>
+                <div class="workflow-step">
+                    <div class="step-number">3</div>
+                    <h3>Optimize</h3>
+                    <p>Get instant feedback and automated performance improvements</p>
+                </div>
+                <div class="workflow-step">
+                    <div class="step-number">4</div>
+                    <h3>Deploy</h3>
+                    <p>Push your enhanced code with confidence and monitoring</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Statistics Section -->
+        <section class="stats-section">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">10K+</div>
+                    <div class="stat-label">Active Users</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">10K+</div>
+                    <div class="stat-label">Repositories</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">99.9%</div>
+                    <div class="stat-label">Uptime</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">24/7</div>
+                    <div class="stat-label">Support</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonials Section -->
+        <section class="testimonials">
+            <div class="testimonials-container">
+                <div class="testimonial-grid">
+                    <div class="testimonial-card">
+                        <div class="testimonial-content">
+                            "RedFlags has revolutionized our development workflow. The AI suggestions are incredibly accurate!"
+                        </div>
+                        <div class="testimonial-author">
+                            <div class="author-avatar"></div>
+                            <div>
+                                <h4>Sarah Chen</h4>
+                                <p>Senior Developer, TechCorp</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial-card">
+                        <div class="testimonial-content">
+                            "The quantum testing feature has reduced our QA time by 50%. Simply amazing!"
+                        </div>
+                        <div class="testimonial-author">
+                            <div class="author-avatar"></div>
+                            <div>
+                                <h4>Mark Thompson</h4>
+                                <p>CTO, StartupX</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+       
     </div>
-    <div class="feature-item">
-        <h2>Multiple Languages</h2>
-        <p>Code in Python, JavaScript, or C++ - choose your preferred language!</p>
-    </div>
-    <div class="feature-item">
-        <h2>Real-time Feedback</h2>
-        <p>Get instant feedback on your solutions with our test case system.</p>
-    </div>
-    <div class="feature-item">
-        <h2>Contribute Problems</h2>
-        <p>Add your own coding problems to expand our collection.</p>
-    </div>
-</div>
+</body>
+</html>
 {% endblock %}
